@@ -440,9 +440,7 @@ const getWatchedHistory = asyncHandler(async(req,res)=>{
     }
   }
  ])
-})
-
-if(!getWatchedHistory){
+ if(!getWatchedHistory){
   throw new ApiError(404,"video doesnot exist")
 }
 
@@ -455,6 +453,9 @@ return res
     "Watch history fetched sucessfully"
   )
 )
+})
+
+
 
 export {
   registerUser,
@@ -465,6 +466,7 @@ export {
   getCurrentUser,
   updateAccountDetails,
   avatarUpdate,
+  getUserChannelProfile,
   coverUpdate,
   getWatchedHistory
 };
