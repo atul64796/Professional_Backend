@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudnary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
@@ -164,8 +165,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1,//this remove the field from document
       },
     },
     {
@@ -238,8 +239,8 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user?._id);
-  isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+  console.log(user)
   if (!isPasswordCorrect) {
     throw new ApiError(400, "Invalidis old password ");
   }
@@ -255,10 +256,10 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
-    .json(new 200(), req.user, "current user fetched sucessfully");
+    .json(new ApiResponse(200,req.user,"current user fetched sucessfully"))
 });
 //udated account details
-const updateAccountDetails = asyncHandler(async (req) => {
+const updateAccountDetails = asyncHandler(async (req,res) => {
   const { fullName, email } = req.body;
 
   if (!fullName || !email) {
@@ -367,7 +368,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         },
         isSubscribed:{
           $cond:{
-            if:{$in:[req.user?._id,"subscribers.subscriber"]},
+            if:{$in:[req.user?._id,"$subscribers.subscriber"]},
             then:true,
             else:false
           }
