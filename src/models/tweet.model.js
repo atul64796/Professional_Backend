@@ -4,7 +4,7 @@ const tweetsSchema = mongoose.Schema(
     {
         owner:{
             type:Schema.Types.ObjectId,
-            ref:""
+            ref:"User"
         },
         content: {
             type: String,
